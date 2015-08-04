@@ -1141,33 +1141,33 @@ double GetTrend(string smb,ENUM_TIMEFRAMES tf,int shift,bool draw=false,datetime
 
             if(mayBeSell)//&& !closeSell)
               {
-               if(S>(Low[i]+TS-SymbolInfoDouble(smb,SYMBOL_POINT)*_deviation_))// || S<(High[i]-TS))
-                 {
-                  S=Low[i]+TS-SymbolInfoDouble(smb,SYMBOL_POINT)*_deviation_; TurnSellPrice=Low[i]; turnis=i;
-                 }
-               if((((S)<=High[i])
-                  && ((Low[i]+TS)<Close[i] || is!=i))
+              if((S<=High[i])
+                  //&& ((Low[i]+TS)<Close[i] || is!=i))
                   || (Close[shift_history+1]<(Close[i]-SymbolInfoDouble(smb,SYMBOL_POINT)*_deviation_))
                   )
                  {
                   mayBeSell=false; is=i-1;
                  }
+                if(S>(Low[i]+TS-SymbolInfoDouble(smb,SYMBOL_POINT)*_deviation_))// || S<(High[i]-TS))
+                 {
+                  S=Low[i]+TS-SymbolInfoDouble(smb,SYMBOL_POINT)*_deviation_; TurnSellPrice=Low[i]; turnis=i;
+                 }
               }
             if(mayBeBuy)//&& !closeBuy)
               {
-               if(B<(High[i]-TS+SymbolInfoDouble(smb,SYMBOL_POINT)*_deviation_))// || B>(Low[i]+TS))
-                 {
-                  B=(High[i]-TS+SymbolInfoDouble(smb,SYMBOL_POINT)*_deviation_);turnib=i;TurnBuyPrice=High[i];//mB=B-Close[shift_history];                              
-                 }
-               if(((B>=Low[i])
-                  && ((High[i]-TS-SymbolSpread)>Close[i])
-                  )
+               if((B>=Low[i])
+         //         && ((High[i]-TS-SymbolSpread)>Close[i])
+         //         )
 
                   || (Close[shift_history+1]>(Close[i]+SymbolInfoDouble(smb,SYMBOL_POINT)*_deviation_))
                   )//&& (shift_history-i)<_Expiration_))
                  {
-                  ib=i-1;
+                  ib=i;
                   mayBeBuy=false;
+                 }
+               if(B<(High[i]-TS+SymbolInfoDouble(smb,SYMBOL_POINT)*_deviation_))// || B>(Low[i]+TS))
+                 {
+                  B=(High[i]-TS+SymbolInfoDouble(smb,SYMBOL_POINT)*_deviation_);turnib=i;TurnBuyPrice=High[i];//mB=B-Close[shift_history];                              
                  }
               }
            }
@@ -1183,6 +1183,7 @@ double GetTrend(string smb,ENUM_TIMEFRAMES tf,int shift,bool draw=false,datetime
            {
             res=-mS;if(debugdraw || (draw && tanh(mS/(TP))>_levelEntry)) 
               {
+              if(is>turnis) is=1;
                ObjectCreate(0,(debugdraw?"DD_":"")+"GC_Sell_T_"+(string)shift+"_"+(string)(int)(mS/TS)+"_Profit_"+(string)(int)(_Order_Volume_*mS/SymbolInfoDouble(smb,SYMBOL_POINT)),OBJ_ARROWED_LINE,0,Time[shift_history],StartSellPrice,Time[turnis],TurnSellPrice);
                ObjectCreate(0,(debugdraw?"DD_":"")+"GC_Sell_"+(string)shift+"_"+(string)(int)(mS/TS)+"_Profit_"+(string)(int)(_Order_Volume_*mS/SymbolInfoDouble(smb,SYMBOL_POINT)),OBJ_ARROWED_LINE,0,Time[turnis],TurnSellPrice,Time[is],S);
               }
@@ -1191,6 +1192,7 @@ double GetTrend(string smb,ENUM_TIMEFRAMES tf,int shift,bool draw=false,datetime
            {
             res=mB; if(debugdraw || (draw && tanh(res/(TP)>_levelEntry)))
               {
+               if(ib>turnib) ib=1;
                ObjectCreate(0,(debugdraw?"DD_":"")+"GC_Buy_T_"+(string)shift+"_"+(string)(int)(mB/TS)+"_Profit_"+(string)(int)(_Order_Volume_*mB/SymbolInfoDouble(smb,SYMBOL_POINT)),OBJ_ARROWED_LINE,0,Time[shift_history],StartBuyPrice,Time[turnib],TurnBuyPrice);
                ObjectCreate(0,(debugdraw?"DD_":"")+"GC_Buy_"+(string)shift+"_"+(string)(int)(mB/TS)+"_Profit_"+(string)(int)(_Order_Volume_*mB/SymbolInfoDouble(smb,SYMBOL_POINT)),OBJ_ARROWED_LINE,0,Time[turnib],TurnBuyPrice,Time[ib],B);
               }
