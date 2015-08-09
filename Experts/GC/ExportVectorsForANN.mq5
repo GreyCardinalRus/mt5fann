@@ -86,15 +86,26 @@ void OnDeinit(const int reason)
    int _foundRatio=0;
    Qmax=MathMax(exQS,MathMax(exQCB,MathMax(exQZ,MathMax(exQCS,exQB))));
    int normError=100;
-   while(normError>_PercentNormalization)
+   while(normError>_PercentNormalization&&_foundRatio<5)
      {
       normError=0;_foundRatio++;
-      if(((Qmax-exQB*(int)(_foundRatio*Qmax/exQB))*100/Qmax)<0) normError=MathMax(normError,-(Qmax-exQB*(int)(_foundRatio*Qmax/exQB))*100/Qmax);
-      if(((Qmax-exQCS*(int)(_foundRatio*Qmax/exQCS))*100/Qmax)>0) normError=MathMax(normError,(Qmax-exQCS*(int)(_foundRatio*Qmax/exQCS))*100/Qmax);
-       if(((Qmax-exQZ*(int)(_foundRatio*Qmax/exQZ))*100/Qmax)<0) normError=MathMax(normError,-(Qmax-exQZ*(int)(_foundRatio*Qmax/exQZ))*100/Qmax);
-      if(((Qmax-exQCB*(int)(_foundRatio*Qmax/exQCB))*100/Qmax)>0) normError=MathMax(normError,(Qmax-exQCB*(int)(_foundRatio*Qmax/exQCB))*100/Qmax);  
-      if(((Qmax-exQS*(int)(_foundRatio*Qmax/exQS))*100/Qmax)>0) normError=MathMax(normError,(Qmax-exQS*(int)(_foundRatio*Qmax/exQS))*100/Qmax);  
+      if(((_foundRatio*Qmax-exQB*(int)(_foundRatio*Qmax/exQB))*100/(_foundRatio*Qmax))<0) normError=MathMax(normError,-((_foundRatio*Qmax)-exQB*(int)(_foundRatio*Qmax/exQB))*100/(_foundRatio*Qmax));
+      if(((_foundRatio*Qmax-exQCS*(int)(_foundRatio*Qmax/exQCS))*100/(_foundRatio*Qmax))<0) normError=MathMax(normError,-((_foundRatio*Qmax)-exQCS*(int)(_foundRatio*Qmax/exQCS))*100/(_foundRatio*Qmax));
+      if(((_foundRatio*Qmax-exQZ*(int)(_foundRatio*Qmax/exQZ))*100/(_foundRatio*Qmax))<0) normError=MathMax(normError,-((_foundRatio*Qmax)-exQZ*(int)(_foundRatio*Qmax/exQZ))*100/(_foundRatio*Qmax));
+      if(((_foundRatio*Qmax-exQCB*(int)(_foundRatio*Qmax/exQCB))*100/(_foundRatio*Qmax))<0) normError=MathMax(normError,-((_foundRatio*Qmax)-exQCB*(int)(_foundRatio*Qmax/exQCB))*100/(_foundRatio*Qmax));
+      if(((_foundRatio*Qmax-exQS*(int)(_foundRatio*Qmax/exQS))*100/(_foundRatio*Qmax))<0) normError=MathMax(normError,-((_foundRatio*Qmax)-exQS*(int)(_foundRatio*Qmax/exQS))*100/(_foundRatio*Qmax));
+      
+      if(((_foundRatio*Qmax-exQB*(int)(_foundRatio*Qmax/exQB))*100/(_foundRatio*Qmax))>0) normError=MathMax(normError,((_foundRatio*Qmax)-exQB*(int)(_foundRatio*Qmax/exQB))*100/(_foundRatio*Qmax));
+      if(((_foundRatio*Qmax-exQCS*(int)(_foundRatio*Qmax/exQCS))*100/(_foundRatio*Qmax))>0) normError=MathMax(normError,((_foundRatio*Qmax)-exQCS*(int)(_foundRatio*Qmax/exQCS))*100/(_foundRatio*Qmax));
+      if(((_foundRatio*Qmax-exQZ*(int)(_foundRatio*Qmax/exQZ))*100/(_foundRatio*Qmax))>0) normError=MathMax(normError,((_foundRatio*Qmax)-exQZ*(int)(_foundRatio*Qmax/exQZ))*100/(_foundRatio*Qmax));
+      if(((_foundRatio*Qmax-exQCB*(int)(_foundRatio*Qmax/exQCB))*100/(_foundRatio*Qmax))>0) normError=MathMax(normError,((_foundRatio*Qmax)-exQCB*(int)(_foundRatio*Qmax/exQCB))*100/(_foundRatio*Qmax));
+      if(((_foundRatio*Qmax-exQS*(int)(_foundRatio*Qmax/exQS))*100/(_foundRatio*Qmax))>0) normError=MathMax(normError,((_foundRatio*Qmax)-exQS*(int)(_foundRatio*Qmax/exQS))*100/(_foundRatio*Qmax));
      }
+   Print(" exQB="+(string)exQB+" maxRepeat="+(string)(int)(_foundRatio*Qmax/exQB)+" newCount="+(string)(exQB*(int)(_foundRatio*Qmax/exQB))+" err%="+(string)(((_foundRatio*Qmax)-exQB*(int)(_foundRatio*Qmax/exQB))*100/(_foundRatio*Qmax)));
+   Print(" exQCS="+(string)exQCS+" maxRepeat="+(string)(int)(_foundRatio*Qmax/exQCS)+" newCount="+(string)(exQCS*(int)(_foundRatio*Qmax/exQCS))+" err%="+(string)(((_foundRatio*Qmax)-exQCS*(int)(_foundRatio*Qmax/exQCS))*100/(_foundRatio*Qmax)));
+   Print(" exQZ="+(string)exQZ+" maxRepeat="+(string)(int)(_foundRatio*Qmax/exQZ)+" newCount="+(string)(exQZ*(int)(_foundRatio*Qmax/exQZ))+" err%="+(string)(((_foundRatio*Qmax)-exQZ*(int)(_foundRatio*Qmax/exQZ))*100/(_foundRatio*Qmax)));
+   Print(" exQCB="+(string)exQCB+" maxRepeat="+(string)(int)(_foundRatio*Qmax/exQCB)+" newCount="+(string)(exQCB*(int)(_foundRatio*Qmax/exQCB))+" err%="+(string)(((_foundRatio*Qmax)-exQCB*(int)(_foundRatio*Qmax/exQCB))*100/(_foundRatio*Qmax)));
+   Print(" exQS="+(string)exQS+" maxRepeat="+(string)(int)(_foundRatio*Qmax/exQS)+" newCount="+(string)(exQS*(int)(_foundRatio*Qmax/exQS))+" err%="+(string)(((_foundRatio*Qmax)-exQS*(int)(_foundRatio*Qmax/exQS))*100/(_foundRatio*Qmax)));
    Qmax=0;
    while(""!=(outstr=FileReadString(exFileHandle)))
      {
@@ -120,11 +131,6 @@ void OnDeinit(const int reason)
    FileClose(exFileHandle);
    FileClose(exFileHandleOC);
    Print("Created. Qmax="+(string)Qmax);
-   Print(" exQB="+(string)exQB+" maxRepeat="+(string)(int)(_foundRatio*Qmax/exQB)+" newCount="+(string)(exQB*(int)(_foundRatio*Qmax/exQB))+" err%="+(string)((Qmax-exQB*(int)(_foundRatio*Qmax/exQB))*100/Qmax));
-   Print(" exQCS="+(string)exQCS+" maxRepeat="+(string)(int)(_foundRatio*Qmax/exQCS)+" newCount="+(string)(exQCS*(int)(_foundRatio*Qmax/exQCS))+" err%="+(string)((Qmax-exQCS*(int)(_foundRatio*Qmax/exQCS))*100/Qmax));
-   Print(" exQZ="+(string)exQZ+" maxRepeat="+(string)(int)(_foundRatio*Qmax/exQZ)+" newCount="+(string)(exQZ*(int)(_foundRatio*Qmax/exQZ))+" err%="+(string)((Qmax-exQZ*(int)(_foundRatio*Qmax/exQZ))*100/Qmax));
-   Print(" exQCB="+(string)exQCB+" maxRepeat="+(string)(int)(_foundRatio*Qmax/exQCB)+" newCount="+(string)(exQCB*(int)(_foundRatio*Qmax/exQCB))+" err%="+(string)((Qmax-exQCB*(int)(_foundRatio*Qmax/exQCB))*100/Qmax));
-   Print(" exQS="+(string)exQS+" maxRepeat="+(string)(int)(_foundRatio*Qmax/exQS)+" newCount="+(string)(exQS*(int)(_foundRatio*Qmax/exQS))+" err%="+(string)((Qmax-exQS*(int)(_foundRatio*Qmax/exQS))*100/Qmax));
 
    delete MyExpert;
   }
