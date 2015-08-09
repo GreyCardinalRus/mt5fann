@@ -98,13 +98,13 @@ int OnCalculate(const int rates_total,
       res=GetTrend(_Symbol,0,i,true,time[i]);
       ExtVolumesBuffer[i]=res;
       ExtColorsBuffer[i]=3.0;
-      if(res<-0.66)
+      if(res<-_levelEntry)
          ExtColorsBuffer[i]=1.0;
-      else if(res<-0.33)
+      else if(res<-_levelClose)
          ExtColorsBuffer[i]=2.0;
-      else if(res<0.33)
+      else if(res<_levelClose)
          ExtColorsBuffer[i]=3.0;
-      else if(res<0.66)
+      else if(res<_levelEntry)
          ExtColorsBuffer[i]=4.0;
       else
          ExtColorsBuffer[i]=5.0;

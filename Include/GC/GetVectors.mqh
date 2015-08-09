@@ -1099,7 +1099,7 @@ double GetTrend(string smb,ENUM_TIMEFRAMES tf,int shift,bool draw=false,datetime
    double StartSellPrice=0,StartBuyPrice=0,TurnBuyPrice=0,TurnSellPrice=0;
 
    if(0==SymbolSpread) { Print(smb," ",shift);return(0);}
-   bool mayBeSell=true,mayBeBuy=true,closeSell=true,closeBuy=true,isFlat=true;
+   bool mayBeSell=true,mayBeBuy=true,closeSell=false,closeBuy=false,isFlatSell=false,isFlatBuy=false;
 // Есть пробой 
 //   if((High[shift_history+1]>High[shift_history] && High[shift_history+1]>High[shift_history+2]) 
 //|| (Low[shift_history+1]<Low[shift_history] && Low[shift_history+1]<Low[shift_history+2]))
@@ -1112,6 +1112,8 @@ double GetTrend(string smb,ENUM_TIMEFRAMES tf,int shift,bool draw=false,datetime
       is=ib=turnib=turnis=shift_history+1;
       if(debugdraw)
         {
+         ObjectCreate(0,(debugdraw?"DD_":"")+"GC_cs_"+(string)shift,OBJ_ARROW_SELL,0,Time[shift_history],Close[shift_history+1]+TS);
+         ObjectCreate(0,(debugdraw?"DD_":"")+"GC_cb_"+(string)shift,OBJ_ARROW_BUY,0,Time[shift_history],Close[shift_history+1]-TS);
          ObjectCreate(0,(debugdraw?"DD_":"")+"GC_ss_"+(string)shift,OBJ_ARROW_SELL,0,Time[0],Close[shift_history+1]-TP);
          ObjectCreate(0,(debugdraw?"DD_":"")+"GC_sb_"+(string)shift,OBJ_ARROW_BUY,0,Time[0],Close[shift_history+1]+TP);
          ObjectCreate(0,(debugdraw?"DD_":"")+"GC_ssd_"+(string)shift,OBJ_ARROW_DOWN,0,Time[0],Close[shift_history+1]-TP-TS);
@@ -1132,8 +1134,10 @@ double GetTrend(string smb,ENUM_TIMEFRAMES tf,int shift,bool draw=false,datetime
             mB=B-StartBuyPrice; if(mB<TP || shift_history-ib<2) mB=0;
             mS=StartSellPrice-S; if(mS<TP || shift_history-is<2) mS=0;
             if(MathMax(mB,mS)*SymbolInfoDouble(smb,SYMBOL_POINT)-TS*1000*_Order_Volume_>_LovelyProfit_*_Order_Volume_) TS/=2;
-            if(closeBuy && Close[shift_history+1]>Close[i]) closeBuy=false;
-            if(closeSell&&Close[shift_history+1]<Close[i]) closeSell=false;
+            if(!isFlatBuy && Close[shift_history+1]>Low[i]+TS) closeBuy=true;
+            if(!closeBuy &&Close[shift_history+1]<Close[i]) isFlatBuy=true;
+            if(!isFlatSell && Close[shift_history+1]<High[i]-TS) closeSell=true;
+            if(!closeSell && Close[shift_history+1]>Close[i]) isFlatSell=true;
             //  {
             //if((Close[shift_history+1]<Close[i]) closeSell=false;
             //   if((Close[shift_history+1]>(Low[i]+1*TS))) closeBuy=true;
@@ -1181,7 +1185,7 @@ double GetTrend(string smb,ENUM_TIMEFRAMES tf,int shift,bool draw=false,datetime
          // S=S+SymbolSpread;//if(mayBeBuy) 
          if((mS>TS || (debugdraw && mS>0)) && mS>mB)
            {
-            res=-mS;if(debugdraw || (draw && tanh(mS/(TP))>_levelEntry)) 
+            res=-mS;if(debugdraw || (draw && tanh(mS/TP)>_levelEntry)) 
               {
               if(is>turnis) is=1;
                ObjectCreate(0,(debugdraw?"DD_":"")+"GC_Sell_T_"+(string)shift+"_"+(string)(int)(mS/TS)+"_Profit_"+(string)(int)(_Order_Volume_*mS/SymbolInfoDouble(smb,SYMBOL_POINT)),OBJ_ARROWED_LINE,0,Time[shift_history],StartSellPrice,Time[turnis],TurnSellPrice);
@@ -1190,7 +1194,7 @@ double GetTrend(string smb,ENUM_TIMEFRAMES tf,int shift,bool draw=false,datetime
            }
          else if((mB>TS || (debugdraw && mB>0)) && mS<mB)
            {
-            res=mB; if(debugdraw || (draw && tanh(res/(TP)>_levelEntry)))
+            res=mB; if(debugdraw || (draw && tanh(res/TP)>_levelEntry))
               {
                if(ib>turnib) ib=1;
                ObjectCreate(0,(debugdraw?"DD_":"")+"GC_Buy_T_"+(string)shift+"_"+(string)(int)(mB/TS)+"_Profit_"+(string)(int)(_Order_Volume_*mB/SymbolInfoDouble(smb,SYMBOL_POINT)),OBJ_ARROWED_LINE,0,Time[shift_history],StartBuyPrice,Time[turnib],TurnBuyPrice);
@@ -1211,9 +1215,9 @@ double GetTrend(string smb,ENUM_TIMEFRAMES tf,int shift,bool draw=false,datetime
            }
          else
            {
-            //res=0;
-            //if(closeSell&&!closeBuy) res=0.5;
-            //if(closeBuy&&!closeSell) res=-0.5;
+            res=0;
+            if(closeSell&&!isFlatSell) res=_levelClose+.01;
+            if(closeBuy&&!isFlatBuy) res=-_levelClose-.01;
            }
 
         }
