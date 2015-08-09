@@ -83,34 +83,60 @@ void OnDeinit(const int reason)
    int nr=0;
    int Qmax=0;
    int pos_s=0;
+   int _foundRatio=0;
+   Qmax=MathMax(exQS,MathMax(exQCB,MathMax(exQZ,MathMax(exQCS,exQB))));
+   int normError=100;
+   while(normError>_PercentNormalization)
+     {
+      normError=0;_foundRatio++;
+      if(((Qmax-exQB*(int)(_foundRatio*Qmax/exQB))*100/Qmax)<0) normError=MathMax(normError,-(Qmax-exQB*(int)(_foundRatio*Qmax/exQB))*100/Qmax);
+      if(((Qmax-exQCS*(int)(_foundRatio*Qmax/exQCS))*100/Qmax)>0) normError=MathMax(normError,(Qmax-exQCS*(int)(_foundRatio*Qmax/exQCS))*100/Qmax);
+       if(((Qmax-exQZ*(int)(_foundRatio*Qmax/exQZ))*100/Qmax)<0) normError=MathMax(normError,-(Qmax-exQZ*(int)(_foundRatio*Qmax/exQZ))*100/Qmax);
+      if(((Qmax-exQCB*(int)(_foundRatio*Qmax/exQCB))*100/Qmax)>0) normError=MathMax(normError,(Qmax-exQCB*(int)(_foundRatio*Qmax/exQCB))*100/Qmax);  
+      if(((Qmax-exQS*(int)(_foundRatio*Qmax/exQS))*100/Qmax)>0) normError=MathMax(normError,(Qmax-exQS*(int)(_foundRatio*Qmax/exQS))*100/Qmax);  
+     }
+   Qmax=0;
    while(""!=(outstr=FileReadString(exFileHandle)))
      {
-     pos_s = StringFind(outstr,",");
+      pos_s=StringFind(outstr,",");
       if(0==Qmax)
         {
-         outstr = StringSubstr(outstr,pos_s+1);
+         outstr=StringSubstr(outstr,pos_s+1);
          Qmax=MathMax(exQS,MathMax(exQCB,MathMax(exQZ,MathMax(exQCS,exQB))));
          FileWrite(exFileHandleOC,outstr);
          continue;
         }
-      
-      Result = (double) StringToDouble(StringSubstr(outstr,0,pos_s));
-      if(Result>_levelEntry) maxRepeat=_PercentNormalization*Qmax/exQB;
-      else if(Result>_levelClose) maxRepeat=_PercentNormalization*Qmax/exQCS;
-      //else if(res>0.1) QWCS++;
-      else if(Result>-_levelClose) maxRepeat=_PercentNormalization*Qmax/exQZ;
-      //else if(res>-.49) QWCB++;
-      else if(Result>-_levelEntry) maxRepeat=_PercentNormalization*Qmax/exQCB;
-      else maxRepeat=_PercentNormalization*Qmax/exQS;
-      outstr = StringSubstr(outstr,pos_s+1);
+
+      Result=(double) StringToDouble(StringSubstr(outstr,0,pos_s));
+      if(Result>_levelEntry) maxRepeat=_foundRatio*Qmax/exQB;
+      else if(Result>_levelClose) maxRepeat=_foundRatio*Qmax/exQCS;
+      else if(Result>-_levelClose) maxRepeat=_foundRatio*Qmax/exQZ;
+      else if(Result>-_levelEntry) maxRepeat=_foundRatio*Qmax/exQCB;
+      else maxRepeat=_foundRatio*Qmax/exQS;
+      outstr= StringSubstr(outstr,pos_s+1);
       for(nr=0;nr<maxRepeat;nr++)
          FileWrite(exFileHandleOC,outstr);
      }
    FileClose(exFileHandle);
    FileClose(exFileHandleOC);
-   Print("Created.");
+   Print("Created. Qmax="+(string)Qmax);
+   Print(" exQB="+(string)exQB+" maxRepeat="+(string)(int)(_foundRatio*Qmax/exQB)+" newCount="+(string)(exQB*(int)(_foundRatio*Qmax/exQB))+" err%="+(string)((Qmax-exQB*(int)(_foundRatio*Qmax/exQB))*100/Qmax));
+   Print(" exQCS="+(string)exQCS+" maxRepeat="+(string)(int)(_foundRatio*Qmax/exQCS)+" newCount="+(string)(exQCS*(int)(_foundRatio*Qmax/exQCS))+" err%="+(string)((Qmax-exQCS*(int)(_foundRatio*Qmax/exQCS))*100/Qmax));
+   Print(" exQZ="+(string)exQZ+" maxRepeat="+(string)(int)(_foundRatio*Qmax/exQZ)+" newCount="+(string)(exQZ*(int)(_foundRatio*Qmax/exQZ))+" err%="+(string)((Qmax-exQZ*(int)(_foundRatio*Qmax/exQZ))*100/Qmax));
+   Print(" exQCB="+(string)exQCB+" maxRepeat="+(string)(int)(_foundRatio*Qmax/exQCB)+" newCount="+(string)(exQCB*(int)(_foundRatio*Qmax/exQCB))+" err%="+(string)((Qmax-exQCB*(int)(_foundRatio*Qmax/exQCB))*100/Qmax));
+   Print(" exQS="+(string)exQS+" maxRepeat="+(string)(int)(_foundRatio*Qmax/exQS)+" newCount="+(string)(exQS*(int)(_foundRatio*Qmax/exQS))+" err%="+(string)((Qmax-exQS*(int)(_foundRatio*Qmax/exQS))*100/Qmax));
+
    delete MyExpert;
   }
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
 //+------------------------------------------------------------------+
 //| Expert tick function                                             |
 //+------------------------------------------------------------------+
@@ -121,8 +147,8 @@ void OnTick()
       //Print("all done");
      }
    if(!isNewBar()
-   //||curr_num_data>_NEDATA_
-   ) return;
+      //||curr_num_data>_NEDATA_
+      ) return;
    curr_num_data++;
    int i,j;//,shift=_TREND_;
    string outstr;
@@ -145,7 +171,7 @@ void OnTick()
             HistoryInputVector[j+(i-1)*(MyExpert.num_input_signals+_OutputVectors_)]=HistoryInputVector[j+(i-2)*(MyExpert.num_input_signals+_OutputVectors_)];
         }
      }
-   //if(ResultV<1 && ResultV>-1) 
+//if(ResultV<1 && ResultV>-1) 
    for(j=0;j<MyExpert.num_input_signals;j++)
       HistoryInputVector[j]=MyExpert.InputVector[j];
    HistoryDateTime[0]=TimeCurrent();
@@ -155,9 +181,7 @@ void OnTick()
       if(Result>1 || Result<-1) return;
       if(Result>_levelEntry) exQB++;
       else if(Result>_levelClose) exQCS++;
-      //else if(res>0.1) QWCS++;
       else if(Result>-_levelClose) exQZ++;
-      //else if(res>-.49) QWCB++;
       else if(Result>-_levelEntry) exQCB++;
       else exQS++;
       if(Result>=_levelEntry || Result<=-_levelEntry)

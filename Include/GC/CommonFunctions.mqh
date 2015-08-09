@@ -34,7 +34,7 @@ input int _ShiftNEDATA_=0000;// How shift for start export cколько выгрузить
 input int _Precision_=10; // Precissin data
 input int _deviation_= 2; // Deviation 
 input double _levelEntry = 0.7; // Level for open new order
-input double _levelClose = 0.7; // Level for close order
+input double _levelClose = 0.5; // Level for close order
 input string spamfilename="notify.txt";
 
 datetime StartOpenPosition=0;
